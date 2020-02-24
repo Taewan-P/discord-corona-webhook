@@ -37,7 +37,7 @@ def main():
   temp = ""
   while not ticker.wait(WAIT_TIME):
     a = parse_info()
-    time.sleep(10)
+    time.sleep(60)
     # Initialize
     if (temp == ""):
       temp = a
