@@ -9,13 +9,27 @@ WAIT_TIME = 600
 WEBHOOK_ADDRESS="<YOUR DISCORD WEBHOOK ADDRESS>"
 
 def parse_info():
-  req = Request("http://ncov.mohw.go.kr/bdBoardList.do")
+  req = Request("http://ncov.mohw.go.kr/index_main.jsp")
   res = urlopen(req)
 
   bs = BeautifulSoup(res, "html.parser")
-  status = [i.text for i in bs.findAll("ul", attrs={"class": "s_listin_dot"})[:1]]
-  print(status[0])
-  return status[0]
+  status = [i.text for i in bs.findAll("a", attrs={"class": "num"})]
+  try:
+    print(status)
+  except IndexError as e:
+    req = Request("http://ncov.mohw.go.kr/index_main.jsp")
+    bs = BeautifulSoup(res, "html.parser")
+    status = [i.text for i in bs.findAll("a", attrs={"class": "num"})]
+
+  while (len(status) != 3):
+    time.sleep(10)
+    req = Request("http://ncov.mohw.go.kr/index_main.jsp")
+    res = urlopen(req)
+
+    bs = BeautifulSoup(res, "html.parser")
+    status = [i.text for i in bs.findAll("a", attrs={"class": "num"})]
+
+  return status
 
 
 def main():
@@ -28,9 +42,10 @@ def main():
     if (temp == ""):
       temp = a
       # Send request to discord then pass
+      text = "확진환자수 : " + temp[0] + "\n" + "확진환자 격리해제수 : " + temp[1] + "\n" + "사망자수 : " + temp[2]
       url = WEBHOOK_ADDRESS
       headers = {"Content-Type": 'application/json'}
-      data = {"embeds": [{"title": "## 한국 코로나 바이러스 현황 ##", "description": temp, "color": 14366005}]}
+      data = {"embeds": [{"title": "## 한국 코로나 바이러스 현황 ##", "description": text, "color": 14366005}]}
       r = requests.post(url, data=json.dumps(data), headers=headers)
       pass
 
@@ -40,7 +55,9 @@ def main():
       pass
     else:
       temp = a
-      data = {"embeds": [{"title": "## 한국 코로나 바이러스 현황 ##", "description": temp, "color": 14366005}]}
+      url = WEBHOOK_ADDRESS
+      text = "확진환자수 : " + temp[0] + "\n" + "확진환자 격리해제수 : " + temp[1] + "\n" + "사망자수 : " + temp[2]
+      data = {"embeds": [{"title": "## 한국 코로나 바이러스 현황 ##", "description": text, "color": 14366005}]}
       # Send request to discord
       r = requests.post(url, data=json.dumps(data), headers=headers)
 
