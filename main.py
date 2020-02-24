@@ -14,7 +14,7 @@ def parse_info():
 
   bs = BeautifulSoup(res, "html.parser")
   status = [i.text for i in bs.findAll("ul", attrs={"class": "s_listin_dot"})[:1]]
-
+  print(status[0])
   return status[0]
 
 
@@ -23,9 +23,10 @@ def main():
   temp = ""
   while not ticker.wait(WAIT_TIME):
     a = parse_info()
+    time.sleep(10)
     # Initialize
     if (temp == ""):
-      temp = parse_info()
+      temp = a
       # Send request to discord then pass
       url = WEBHOOK_ADDRESS
       headers = {"Content-Type": 'application/json'}
