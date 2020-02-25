@@ -21,14 +21,6 @@ def parse_info():
     bs = BeautifulSoup(res, "html.parser")
     status = [i.text for i in bs.findAll("a", attrs={"class": "num"})]
 
-  while (len(status) != 3):
-    time.sleep(10)
-    req = Request("http://ncov.mohw.go.kr/index_main.jsp")
-    res = urlopen(req)
-
-    bs = BeautifulSoup(res, "html.parser")
-    status = [i.text for i in bs.findAll("a", attrs={"class": "num"})]
-
   return status
 
 
@@ -38,6 +30,10 @@ def main():
   while not ticker.wait(WAIT_TIME):
     a = parse_info()
     time.sleep(60)
+
+    if (len(a) != 3):
+      a = temp
+
     # Initialize
     if (temp == ""):
       temp = a
