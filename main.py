@@ -50,9 +50,20 @@ def add_changes(last, recent):
 
   result = []
 
-  result.append(recent[0] + fin1)
-  result.append(recent[1] + fin2)
-  result.append(recent[2] + fin3)
+  if (recent1 != prev1):
+    result.append(recent[0] + fin1)
+  else:
+    result.append(recent[0])
+
+  if (recent2 != prev2):
+    result.append(recent[1] + fin2)
+  else:
+    result.append(recent[1])
+
+  if (recent3 != prev3):
+    result.append(recent[2] + fin3)
+  else:
+    result.append(recent[2])
 
 
   return result
