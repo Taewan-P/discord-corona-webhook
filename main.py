@@ -34,6 +34,28 @@ def send_result(stat):
   data = {"embeds": [{"title": "## 한국 코로나 바이러스 현황 ##", "description": text, "color": 14366005}]}
   r = requests.post(url, data=json.dumps(data), headers=headers)
 
+def add_changes(last, recent):
+  person = " 명"
+  prev1 = int(last[0].split(" ")[0].replace(",", ""))
+  prev2 = int(last[1].split(" ")[0].replace(",", ""))
+  prev3 = int(last[2].split(" ")[0].replace(",", ""))
+
+  recent1 = int(recent[0].split(" ")[0].replace(",", ""))
+  recent2 = int(recent[1].split(" ")[0].replace(",", ""))
+  recent3 = int(recent[2].split(" ")[0].replace(",", ""))
+
+  fin1 = " (+" + "{:,}".format(recent1 - prev1) + ")"
+  fin2 = " (+" + "{:,}".format(recent2 - prev2) + ")"
+  fin3 = " (+" + "{:,}".format(recent3 - prev3) + ")"
+
+  result = []
+
+  result.append(recent[0] + fin1)
+  result.append(recent[1] + fin2)
+  result.append(recent[2] + fin3)
+
+
+  return result
 
 def main():
   file = open("stats.txt", "r+")
@@ -66,7 +88,8 @@ def main():
       return "PASS"
     else:
       # Update Status
-      send_result(a)
+      r = add_changes(laststat, a)
+      send_result(r)
       file.close()
       file = open("stats.txt", "w+")
       file.write(str(a))
