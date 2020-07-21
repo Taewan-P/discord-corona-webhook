@@ -15,28 +15,31 @@ def parse_info():
 
   bs = BeautifulSoup(res.text, "html.parser")
   status = [i.text for i in bs.findAll("span", attrs={"class": "num"})[:4]]
+  local_abroad_status = [i[4:] for i in bs.findAll("div", attrs={"class": "datalist"})[0].text.split()]
   try:
     print(status[0] + "//" + status[1] + "//" + status[2])
   except IndexError:
     req = Request("http://ncov.mohw.go.kr/index_main.jsp")
     bs = BeautifulSoup(res, "html.parser")
     status = [i.text for i in bs.findAll("span", attrs={"class": "num"})[:4]]
+    local_abroad_status = [i[4:] for i in bs.findAll("div", attrs={"class": "datalist"})[0].text.split()]
 
   status[0] = status[0].split(")")[1]
   status.pop(2)
   status = [i + " 명" for i in status]
 
-  return status
+  return status, local_abroad_status
 
-def send_result(stat):
+def send_result(stat, stat2):
   try:
-    text = "확진환자수 : " + stat[0] + "\n" + "확진환자 격리해제수 : " + stat[1] + "\n" + "사망자수 : " + stat[2]
+    stat[0] += "\n┗*지역발생 {0} 명, 해외유입 {1} 명*".format(stat2[0], stat2[1])
+    text = "확진환자수 : " + stat[0] + "\n\n" + "확진환자 격리해제수 : " + stat[1] + "\n" + "사망자수 : " + stat[2]
   except IndexError:
     return "ERROR"
 
   url = WEBHOOK_ADDRESS
   headers = {"Content-Type": 'application/json'}
-  data = {"embeds": [{"title": "## 한국 코로나 바이러스 현황 ##", "description": text, "color": 14366005}]}
+  data = {"embeds": [{"title": " 😡　한국 코로나 바이러스 현황　😡", "description": text, "color": 14366005}]}
   r = requests.post(url, data=json.dumps(data), headers=headers)
 
 def add_changes(last, recent):
@@ -73,7 +76,7 @@ def add_changes(last, recent):
 
 def main():
   file = open("stats.txt", "r+")
-  a = parse_info()
+  a, b = parse_info()
   laststat = file.readline()
   if laststat == "\n":
     laststat = []
@@ -83,11 +86,11 @@ def main():
 
   if (len(a) != 3):
     # Parse Error, Trying one more time.
-    a = parse_info()
+    a, b = parse_info()
 
   if (laststat == []):
     # Initial
-    send_result(a)
+    send_result(a, b)
     file.close()
     file = open("stats.txt", "w+")
     file.write(str(a))
@@ -103,7 +106,7 @@ def main():
     else:
       # Update Status
       r = add_changes(laststat, a)
-      send_result(r)
+      send_result(r, b)
       file.close()
       file = open("stats.txt", "w+")
       file.write(str(a))
