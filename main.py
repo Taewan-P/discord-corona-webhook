@@ -8,25 +8,30 @@ from urllib import parse
 WEBHOOK_ADDRESS="<YOUR DISCORD WEBHOOK ADDRESS>"
 
 def parse_info():
-  req = Request("http://ncov.mohw.go.kr/index_main.jsp")
-  res = urlopen(req)
+  session = requests.Session()
+  req = "http://ncov.mohw.go.kr/index_main.jsp"
+  res = session.get(req)
   time.sleep(3)
 
-  bs = BeautifulSoup(res, "html.parser")
-  status = [i.text for i in bs.findAll("a", attrs={"class": "num"})]
+  bs = BeautifulSoup(res.text, "html.parser")
+  status = [i.text for i in bs.findAll("span", attrs={"class": "num"})[:4]]
   try:
-    print(status)
-  except IndexError as e:
+    print(status[0] + "//" + status[1] + "//" + status[2])
+  except IndexError:
     req = Request("http://ncov.mohw.go.kr/index_main.jsp")
     bs = BeautifulSoup(res, "html.parser")
-    status = [i.text for i in bs.findAll("a", attrs={"class": "num"})]
+    status = [i.text for i in bs.findAll("span", attrs={"class": "num"})[:4]]
+
+  status[0] = status[0].split(")")[1]
+  status.pop(2)
+  status = [i + " 명" for i in status]
 
   return status
 
 def send_result(stat):
   try:
     text = "확진환자수 : " + stat[0] + "\n" + "확진환자 격리해제수 : " + stat[1] + "\n" + "사망자수 : " + stat[2]
-  except IndexError as e:
+  except IndexError:
     return "ERROR"
 
   url = WEBHOOK_ADDRESS
@@ -35,7 +40,6 @@ def send_result(stat):
   r = requests.post(url, data=json.dumps(data), headers=headers)
 
 def add_changes(last, recent):
-  person = " 명"
   prev1 = int(last[0].split(" ")[0].replace(",", ""))
   prev2 = int(last[1].split(" ")[0].replace(",", ""))
   prev3 = int(last[2].split(" ")[0].replace(",", ""))
@@ -64,7 +68,6 @@ def add_changes(last, recent):
     result.append(recent[2] + fin3)
   else:
     result.append(recent[2])
-
 
   return result
 
