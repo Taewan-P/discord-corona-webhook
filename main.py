@@ -33,7 +33,7 @@ def parse_info():
 def send_result(stat, stat2):
   try:
     stat[0] += "\n┗*지역발생 {0} 명, 해외유입 {1} 명*".format(stat2[0], stat2[1])
-    text = "확진환자수 : " + stat[0] + "\n\n" + "확진환자 격리해제수 : " + stat[1] + "\n" + "사망자수 : " + stat[2]
+    text = "확진환자수 : {0}\n\n확진환자 격리해제수 : {1}\n사망자수 : {2}".format(stat[0], stat[1], stat[2])
   except IndexError:
     return "ERROR"
 
