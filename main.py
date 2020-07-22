@@ -43,6 +43,17 @@ def send_result(stat, stat2):
   r = requests.post(url, data=json.dumps(data), headers=headers)
 
 def add_changes(last, recent):
+  """
+    Change num string(today and yesterday's stat) to num, then subtrack the difference between yesterday's stat and today's stat.
+    After getting the difference, add them to the num string(today's stat) with parentheses.
+    Example: 
+      Yesterday's total COVID19 cases: "12,345" -> last[0]
+      Today's total COVID19 cases: "12,550" -> recent[0]
+      "12,550 (+205)" -> result[0]
+
+    last: Yesterday's [COVID19 cases, cured cases, deaths]
+    recent: Today's [COVID19 cases, cured cases, deaths]
+  """
   prev1 = int(last[0].split(" ")[0].replace(",", ""))
   prev2 = int(last[1].split(" ")[0].replace(",", ""))
   prev3 = int(last[2].split(" ")[0].replace(",", ""))
