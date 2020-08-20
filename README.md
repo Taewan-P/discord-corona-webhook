@@ -1,2 +1,3 @@
 # discord-corona-webhook
-Discord Webhook to keep track of CORVID-19
+Discord Webhook to keep track of COVID-19
+
